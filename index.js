@@ -1,50 +1,67 @@
 let file;
+let prefixMap;
 
-function getLikeliestCompletion(inp = "") {
-  const input = inp.toLowerCase();
+function buildPrefixMap() {
+  prefixMap = {};
   const words = file.replace(/\n/g, " ").split(" ");
-  const prefixMap = {};
   words.forEach((word) => {
-    for (let i = 0; i < word.length; i++) {
-      const prefix = word.slice(0, i + 1);
+    word = word.toLowerCase();
+    for (let i = 1; i <= word.length; i++) {
+      const prefix = word.slice(0, i);
       if (!prefixMap[prefix]) prefixMap[prefix] = {};
       prefixMap[prefix][word] = (prefixMap[prefix][word] || 0) + 1;
     }
   });
-  const prefixMatches = prefixMap[input] || {};
-  return Object.entries(prefixMatches).reduce(
+}
+
+function getLikeliestCompletion(prefix = "") {
+  const matches = prefixMap[prefix.toLowerCase()] || {};
+  return Object.entries(matches).reduce(
     (a, b) => (a[1] > b[1] ? a : b),
     ["", 0]
   )[0];
 }
 
-async function compress(text = "") {
-  if (!file) file = (await (await fetch("words.txt")).text()).toLowerCase();
-  const words = text.split(" ");
+function getShortestUniquePrefix(word) {
+  word = word.toLowerCase();
+  for (let i = 1; i <= word.length; i++) {
+    const prefix = word.slice(0, i);
+    if (getLikeliestCompletion(prefix) === word) {
+      return prefix;
+    }
+  }
+  return null;
+}
 
-  return words
+async function compress(text = "") {
+  if (!file) {
+    file = (await (await fetch("words.txt")).text()).toLowerCase();
+    buildPrefixMap();
+  }
+
+  return text
+    .split(" ")
     .map((word) => {
-      for (let index = 1; index < word.length + 1; index++) {
-        if (getLikeliestCompletion(word.slice(0, index)) == word) {
-          return word;
-        }
-      }
-      return " " + word;
+      const prefix = getShortestUniquePrefix(word);
+      if (prefix) return "~" + prefix; // predictable word
+      return word; // raw word
     })
     .join(" ");
 }
 
 async function decompress(data) {
-  if (!file) file = (await (await fetch("words.txt")).text()).toLowerCase();
-  const out = [];
-
-  const words = data.split(" ");
-
-  for (let index = 0; index < words.length; index++) {
-    if (words[index - 1] == "") out.push(words[index]);
-    else if (words[index] == "") continue;
-    else out.push(getLikeliestCompletion(words[index]));
+  if (!file) {
+    file = (await (await fetch("words.txt")).text()).toLowerCase();
+    buildPrefixMap();
   }
 
-  return out.join(" ");
+  return data
+    .split(" ")
+    .map((word) => {
+      if (word.startsWith("~")) {
+        return getLikeliestCompletion(word.slice(1));
+      }
+      return word;
+    })
+    .join(" ");
 }
