@@ -1,0 +1,1840 @@
+Skip to content
+Navigation Menu
+bennyschmidt
+next-token-prediction
+
+Type / to search
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security
+Insights
+Owner avatar
+next-token-prediction
+Public
+bennyschmidt/next-token-prediction
+Go to file
+t
+Name		
+bennyschmidt
+bennyschmidt
+copy
+ef945cb
+ · 
+7 months ago
+components/Vector
+genericize Vector
+7 months ago
+examples
+genericize Vector
+7 months ago
+models
+genericize Vector
+7 months ago
+training
+new vector format (Vec144)
+7 months ago
+.gitignore
+init
+last year
+.nvmrc
+export vecs to tensor file, organize training exports, update node ve…
+7 months ago
+README.md
+copy
+7 months ago
+index.js
+init
+last year
+package-lock.json
+genericize Vector
+7 months ago
+package.json
+genericize Vector
+7 months ago
+test.js
+variance
+7 months ago
+utils.js
+new vector format (Vec144)
+7 months ago
+Repository files navigation
+README
+Next-Token Prediction
+Create a language model based on a body of text and get high-quality predictions (next word, next phrase, next pixel, etc.).
+
+Install
+npm i next-token-prediction
+
+Usage
+Simple (from a built-in data bootstrap)
+Put this /training/ directory in the root of your project.
+
+Now you just need to create your app's index.js file and run it. Your model will start training on the .txt files located in /training/documents/. After training is complete it will run these 4 queries:
+
+const { Language: LM } = require('next-token-prediction');
+
+const MyLanguageModel = async () => {
+  const agent = await LM({
+    bootstrap: true
+  });
+
+  // Predict the next word
+
+  agent.getTokenPrediction('what');
+
+  // Predict the next 5 words
+
+  agent.getTokenSequencePrediction('what is', 5);
+
+  // Complete the phrase
+
+  agent.complete('hopefully');
+
+  // Get a top k sample of completion predictions
+
+  agent.getCompletions('The sun');
+};
+
+MyLanguageModel();
+Advanced (provide trainingData or create it from .txt files)
+Put this /training/ directory in the root of your project.
+
+Because training data was committed to this repo, you can optionally skip training, and just use the bootstrapped training data, like this:
+
+const { dirname } = require('path');
+const __root = dirname(require.main.filename);
+
+const { Language: LM } = require('next-token-prediction');
+const OpenSourceBooksDataset = require(`${__root}/training/datasets/OpenSourceBooks`);
+
+const MyLanguageModel = async () => {
+  const agent = await LM({
+    dataset: OpenSourceBooksDataset
+  });
+
+  // Complete the phrase
+
+  agent.complete('hopefully');
+};
+
+MyLanguageModel();
+Or, train on your own provided text files:
+
+const { dirname } = require('path');
+const __root = dirname(require.main.filename);
+
+const { Language: LM } = require('next-token-prediction');
+
+const MyLanguageModel = () => {
+  // The following .txt files should exist in a `/training/documents/`
+  // directory in the root of your project
+
+  const agent = await LM({
+    files: [
+      'marie-antoinette',
+      'pride-and-prejudice',
+      'to-kill-a-mockingbird',
+      'basic-algebra',
+      'a-history-of-war',
+      'introduction-to-c-programming'
+    ]
+  });
+
+  // Complete the phrase
+
+  agent.complete('hopefully');
+};
+
+MyLanguageModel();
+Training embeddings
+Note
+
+By default, next-token prediction does not use vector search. To enable it, set VARIANCE=1 (any value higher than 0) in an .env. This will change the prediction from returning the next likeliest token (n-gram search) to returning the most similar token (vector search) e.g. "The quick brown fox jumped..." (n-gram prediction) vs "The quick brown fox juked..." (vector similarity). Note that vector search is considerably slower and more resource intensive.
+
+When running the n-gram training using the built-in training method, vector embeddings (144-dimensional) are also created for each token pair to capture context and semantics (e.g. the token Jordan has different values in the fragment Michael Jordan than it does in the fragment Syria, Jordan). The goal of vector search is to optionally enable paraphrasing, slang and profanity filtering, and more.
+
+Run tests
+
+npm test
+
+Examples
+Readline Completion
+
+UI Autocomplete
+
+Videos
+ readline-completion.mp4 
+ readline-completion-verbose.mp4 
+Browser example: Fast autocomplete
+With more training data you can get more suggestions, eventually hitting a tipping point where it can complete anything.
+
+ autocomplete.mp4 
+Inspiration
+3Blue1Brown video on YouTube:
+
+YouTube
+
+Watch: YouTube
+
+Goals
+Provide a high-quality text prediction library for:
+autocomplete
+autocorrect
+spell checking
+search/lookup
+summarizing
+paraphrasing
+Create pixel and audio transformers for other prediction formats
+
+Demystify LLMs & simplify methodologies
+
+Make a high-quality, free/open chat-focused LLM in JavaScript, and an equally sophisticated image-focused diffusion model. Working on this here.
+
+About
+Next-token prediction in JavaScript — build fast language and diffusion models.
+
+Topics
+autocomplete ai autocompletion markov-chain embeddings ngrams language-models word-prediction pixel-prediction ngram-language-model diffusion-models vector-embeddings llm next-token-prediction
+Resources
+ Readme
+ Activity
+Stars
+ 143 stars
+Watchers
+ 5 watching
+Forks
+ 6 forks
+Report repository
+Releases
+No releases published
+Packages
+No packages published
+Languages
+JavaScript
+100.0%
+Footer
+© 2025 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Weiter zum Inhalt
+Du:
+give me a trained ai model, that predicts words and sentences. it have to work using js and npm
+ChatGPT:
+If you're seeking a JavaScript-based AI model for word and sentence prediction that integrates seamlessly with npm, here are some options to consider:​
+
+1. TensorFlow.js with LSTM for Next-Word Prediction
+TensorFlow.js allows you to build and run machine learning models directly in JavaScript. You can train a next-word prediction model using LSTM (Long Short-Term Memory) networks. This approach involves tokenizing your text data, creating sequences, and training the model to predict the next word based on the preceding words.​
+
+Installation:
+
+npm install @tensorflow/tfjs
+Example:
+
+import * as tf from '@tensorflow/tfjs';
+
+// Define your model architecture
+const model = tf.sequential();
+// Add layers to your model (e.g., Embedding, LSTM, Dense)
+// Compile and train your model with your dataset
+For a comprehensive guide on building such a model, you can refer to this Medium article: 
+Medium
+​
+
+2. RiTa.js – Natural Language Toolkit
+RiTa.js is an open-source JavaScript library designed for natural language processing tasks. It offers functionalities like tokenization, part-of-speech tagging, and text generation using context-free grammars and Markov chains.​
+
+Installation:
+
+npm install rita
+Example:
+
+const RiTa = require('rita');
+
+let grammar = {
+  "start": ["The #noun# #verb# over the #noun#."],
+  "noun": ["cat", "dog", "man", "woman"],
+  "verb": ["jumps", "runs", "flies", "crawls"]
+};
+
+let rg = new RiTa.RiGrammar(grammar);
+console.log(rg.expand());
+RiTa.js is particularly useful for creative text generation tasks. ​
+Wikipedia
+
+3. Predictionary – Dictionary-Based Word Prediction
+Predictionary is a lightweight JavaScript library that provides word prediction capabilities based on a predefined dictionary. It's suitable for applications requiring basic autocomplete features without the overhead of training complex models.​
+NPM
+
+Installation:
+
+npm install predictionary
+Example:
+
+const predictionary = require('predictionary');
+
+let suggestions = predictionary.predict('hel'); // Returns suggestions like 'hello', 'help', etc.
+console.log(suggestions);
+This library is ideal for quick implementations where advanced NLP features are not required. ​
+NPM
+
+4. Custom LSTM Model with TensorFlow.js
+For more control and customization, you can build your own LSTM-based next-word prediction model using TensorFlow.js. This involves defining your model architecture, preprocessing your dataset, and training the model to predict subsequent words in a sequence.​
+Toolify
++1
+Medium
++1
+
+Installation:
+
+npm install @tensorflow/tfjs
+Example:
+
+import * as tf from '@tensorflow/tfjs';
+
+// Define model architecture
+const model = tf.sequential();
+// Add Embedding, LSTM, and Dense layers
+// Compile and train the model with your data
+A detailed tutorial on this approach can be found here: ​
+
+Each of these options offers different levels of complexity and functionality. If you're looking for a quick and straightforward solution, Predictionary might be suitable. For more advanced and customizable models, TensorFlow.js provides the tools necessary to build and train your own predictive models.​
+
+If you need further assistance with any of these libraries or have specific requirements, feel free to ask!
+
+
+Favicon
+Favicon
+Favicon
+Favicon
+Quellen
+Du:
+give me the entire source code (and a linkt to the trained model)
+ChatGPT:
+Certainly! Here's a comprehensive guide to building a next-word prediction model using JavaScript and npm, along with resources for trained models.
+
+Option 1: TensorFlow.js with LSTM for Next-Word Prediction
+TensorFlow.js enables you to build and run machine learning models directly in JavaScript. You can train a next-word prediction model using LSTM (Long Short-Term Memory) networks. This approach involves tokenizing your text data, creating sequences, and training the model to predict the next word based on the preceding words.​
+
+Installation:
+
+npm install @tensorflow/tfjs
+Example Code:
+
+import * as tf from '@tensorflow/tfjs';
+
+// Define your model architecture
+const model = tf.sequential();
+// Add layers to your model (e.g., Embedding, LSTM, Dense)
+// Compile and train your model with your dataset
+For a comprehensive guide on building such a model, you can refer to this Medium article: 
+Medium
+​
+
+Option 2: RiTa.js – Natural Language Toolkit
+RiTa.js is an open-source JavaScript library designed for natural language processing tasks. It offers functionalities like tokenization, part-of-speech tagging, and text generation using context-free grammars and Markov chains.​
+
+Installation:
+
+npm install rita
+Example Code:
+
+const RiTa = require('rita');
+
+let grammar = {
+  "start": ["The #noun# #verb# over the #noun#."],
+  "noun": ["cat", "dog", "man", "woman"],
+  "verb": ["jumps", "runs", "flies", "crawls"]
+};
+
+let rg = new RiTa.RiGrammar(grammar);
+console.log(rg.expand());
+RiTa.js is particularly useful for creative text generation tasks. ​
+
+Option 3: Predictionary – Dictionary-Based Word Prediction
+Predictionary is a lightweight JavaScript library that provides word prediction capabilities based on a predefined dictionary. It's suitable for applications requiring basic autocomplete features without the overhead of training complex models.​
+
+Installation:
+
+npm install predictionary
+Example Code:
+
+const predictionary = require('predictionary');
+
+let suggestions = predictionary.predict('hel'); // Returns suggestions like 'hello', 'help', etc.
+console.log(suggestions);
+This library is ideal for quick implementations where advanced NLP features are not required. 
+GitHub
+​
+
+Each of these options offers different levels of complexity and functionality. If you're looking for a quick and straightforward solution, Predictionary might be suitable. For more advanced and customizable models, TensorFlow.js provides the tools necessary to build and train your own predictive models.​
+
+If you need further assistance with any of these libraries or have specific requirements, feel free to ask!
+
+
+Favicon
+Favicon
+Favicon
+Quellen
+Ist dieses Gespräch bislang hilfreich?
+
+
+
+
+
+
+
+Suche
+
+Starte Reasoning für
+
+
+
+ChatGPT kann Fehler machen. Überprüfe wichtige Informationen.
+?
+
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+Copied!
+Skip to content
+Navigation Menu
+ManuelWestermeier
+tree-networking-protocol
+
+Type / to search
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+Settings
+Owner avatar
+tree-networking-protocol
+Public
+ManuelWestermeier/tree-networking-protocol
+Go to file
+t
+Name		
+ManuelWestermeier
+ManuelWestermeier
+readme
+9abb144
+ · 
+3 hours ago
+.vscode
+some error logs and ...
+last week
+src
+add match indexes
+3 hours ago
+.gitignore
+first commit
+last week
+README.md
+readme
+3 hours ago
+build_upload.bat
+working
+last week
+build_upload_2.bat
+some macros
+last week
+copy-codebase.js
+xy
+last week
+line-counter.js
+xy
+last week
+platformio.ini
+first commit
+last week
+the-codebase-in-one-file.txt
+small chnages
+last week
+Repository files navigation
+README
+Algorithmus‑Beschreibung
+Dieser Abschnitt erklärt den inneren Ablauf des Tree Networking Protocol (TNP) ohne konkreten Code.
+
+1. Adressabgleich
+Zwei Adressen (dynamische Listen von 16‑Bit‑Werten) werden Element für Element verglichen.
+Zunächst wird die Anzahl der hintereinander gleichen Elemente vom Listenanfang an gezählt („positive“ Treffer).
+Sobald ein Unterschied auftritt oder das Ende der kürzeren Liste erreicht ist, stoppt die Zählung.
+Die verbleibende Länge der getesteten Adresse (Restlänge) ergibt die „negative“ Größe.
+2. Match‑Index
+Aus den Werten „positive“ und „negative“ wird ein einfacher Score berechnet:
+Match‑Index = positive − negative
+Ein hoher Index bedeutet:
+viele aneinanderhängende Übereinstimmungen am Anfang
+kurze Restlänge der Adresse
+Dieser Wert dient als Entscheidungsgrundlage für das Routing.
+3. Gleichheitsprüfung
+Zwei Adressen gelten als identisch, wenn sie gleich lang sind und an jeder Position exakt denselben Wert haben.
+Wird eine exakte Übereinstimmung festgestellt, interpretiert der Knoten dies als „Ziel erreicht“.
+4. Routing‑Logik
+Eingangskontrolle
+
+Liegen keine Verbindungen vor, wird abgebrochen und ein Fehlersignal („keine Verbindungen“) ausgegeben.
+Auswahl der besten Verbindung
+
+Für jede vorhandene Verbindung wird der Match‑Index gegen die gewünschte Zieladresse berechnet.
+Es wird die Verbindung mit dem höchsten Match‑Index ausgewählt.
+Weiterleitung
+
+Die gewählte Verbindung liefert einen Pin‑Wert zurück und gibt zur Diagnose eine Meldung über die serielle Schnittstelle aus.
+Empfangsfall
+
+Wenn die Zieladresse mit der eigenen Adresse des Knotens übereinstimmt, wird nicht weitergeleitet, sondern die Verarbeitung endet mit dem Rückgabewert 0.
+Zusammenfassung
+Präfix‑Matching bestimmt, wie gut eine Verbindung zur Zieladresse passt.
+Match‑Index gewichtet lange gemeinsame Präfixe und kurze Reste positiv.
+Exakte Gleichheit stoppt das Routing am Bestimmungsort.
+Iterative Auswahl stellt sicher, dass jeder Knoten stets den optimalen Pfad nutzt.
+About
+No description, website, or topics provided.
+Resources
+ Readme
+ Activity
+Stars
+ 1 star
+Watchers
+ 1 watching
+Forks
+ 0 forks
+Releases
+No releases published
+Create a new release
+Packages
+No packages published
+Publish your first package
+Languages
+C++
+81.4%
+ 
+JavaScript
+10.5%
+ 
+Batchfile
+8.1%
+Suggested workflows
+Based on your tech stack
+SLSA Generic generator logo
+SLSA Generic generator
+Generate SLSA3 provenance for your existing release workflows
+CMake based, single-platform projects logo
+CMake based, single-platform projects
+Build and test a CMake based project on a single-platform.
+CMake based, multi-platform projects logo
+CMake based, multi-platform projects
+Build and test a CMake based project on multiple platforms.
+More workflows
+Footer
+© 2025 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+
+
+Weiter zum Inhalt
+word predict ai js github
+word predict ai js github
+Ungefähr 568.000 Ergebnisse
+
+GitHub
+https://github.com/asterics/predictionary
+predictionary
+A learning JavaScript dictionary-based word prediction / autocomplete / suggestion library.
+
+7 Watched
+36 Starred
+4 Forks
+javascript
+autocomplete
+autocompletion
+text
+writing
+Primäre Sprache:JavaScript
+Lizenz: AGPL-3.0 license
+Website: https://asterics.github.io/predictionary/demo/
+Projekt anzeigen
+
+Klon-URL kopieren
+https://github.com/asterics/predictionary.git
+War dies hilfreich?
+ 
+Symbol für globales Web
+Github
+https://github.com › asterics › predictionary
+Dieses Ergebnis übersetzen
+GitHub - asterics/predictionary: A learning JavaScript dictionary …
+17 Zeilen · A learning JavaScript dictionary-based word prediction / autocomplete / suggestion library.
+
+Issues
+Issues - GitHub - asterics/predictionary: A learning JavaScript dictionary-based ...
+
+Pull requests 17
+Pull requests 17 - GitHub - asterics/predictionary: A learning …
+
+Security
+GitHub is where people build software. More than 150 million people use GitHub …
+
+Activity
+Activity - GitHub - asterics/predictionary: A learning JavaScript dictionary-based ...
+
+Releases
+Releases - GitHub - asterics/predictionary: A learning JavaScript dictionary-based ...
+
+Dist
+Dist - GitHub - asterics/predictionary: A learning JavaScript dictionary-based ...
+
+Demo
+Demo - GitHub - asterics/predictionary: A learning JavaScript dictionary-based ...
+
+Docs
+Docs - GitHub - asterics/predictionary: A learning JavaScript dictionary-based ...
+
+Nur Ergebnisse von github.com anzeigen 
+Symbol für globales Web
+Github
+https://github.com › W…
+Dieses Ergebnis übersetzen
+Dieses Bild untersuchen
+GitHub - Skyjaheim2/Word-Prediction-js: This is a …
+This is a JavaScript application that tries to autocomplete and predict your next word based on the given dataset of words and paragraphs.
+
+Symbol für globales Web
+Github
+https://github.com › topics › word-prediction
+Dieses Ergebnis übersetzen
+word-prediction · GitHub Topics · GitHub
+18. Sept. 2024 · Next-token prediction in JavaScript — build fast language and diffusion models. Reproducing the results of the paper "Bayesian Recurrent Neural Networks" by Fortunato et al. …
+
+Symbol für globales Web
+asterics.github.io
+https://asterics.github.io › predictionary › demo
+Dieses Ergebnis übersetzen
+Predictionary Demo - GitHub Pages
+Predictionary is a simple JavaScript dictionary-based word prediction library with self-learning abilities. This page shows a simple demo of Predictionary in use, where words are suggested …
+
+
+Microsoft
+https://github.com › GitHub › Copilot
+GitHub Copilot - Get AI-Based Suggestions - Try for Free
+GesponsertProven to Increase Developer Productivity and Accelerate the Pace of Software Development. Build Software Faster and Better with AI
+Collaborative Coding · Keep Applications Secure · Automate Workflows
+
+Einige Ergebnisse wurden entfernt.
+1
+2
+3
+4
+© 2025 Microsoft
+Cookie-Einstellungen verwalten
+Datenschutzbestimmungen und CookiesRechtliche HinweiseWerben auf BingÜber unsere WerbungHilfeFeedbackImpressumDatenschutz in Europa
+Skip to content
+Navigation Menu
+Skyjaheim2
+Word-Prediction-js
+
+Type / to search
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security
+Insights
+Owner avatar
+Word-Prediction-js
+Public
+Skyjaheim2/Word-Prediction-js
+Go to file
+t
+Name		
+Skyjaheim2
+Skyjaheim2
+Added README
+fef4ba2
+ · 
+3 years ago
+LICENSE
+Added README
+3 years ago
+README.md
+Added README
+3 years ago
+b_index.js
+Added README
+3 years ago
+index.html
+First commit
+4 years ago
+paragraphs.txt
+First commit
+4 years ago
+words.txt
+First commit
+4 years ago
+Repository files navigation
+README
+MIT license
+Predictions
+This is a JavaScript application that tries to autocomplete and predict your next word based on the given dataset of words and paragraphs.
+
+image image
+
+Features
+Uses a prediction algorithm to autocomplete and predict your next word
+Usage
+(Optional) Add a dataset of words in words.txt and a dataset of paragraphs in paragraphs.txt
+
+Run index.html
+
+Technologies
+Vanilla JavaScript
+Contributors
+https://github.com/Skyjaheim2
+Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+License
+Licensed under the MIT License.
+
+About
+This is a JavaScript application that tries to autocomplete and predict your next word.
+
+Topics
+html-css-javascript
+Resources
+ Readme
+License
+ MIT license
+ Activity
+Stars
+ 3 stars
+Watchers
+ 1 watching
+Forks
+ 2 forks
+Report repository
+Releases
+No releases published
+Packages
+No packages published
+Languages
+JavaScript
+81.2%
+ 
+HTML
+18.8%
+Footer
+© 2025 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+
+
+Weiter zum Inhalt
+nachrichten aktuell heute
+nachrichten aktuell heute
+Manuel Wes…Profilbild
+245
+Mobiltelefon
+AlleSuchenCopilotSchuleNeuigkeitenBilderVideosKartenmehr
+Werkzeug
+Nachrichten
+Artikel des TagesWeltDeutschlandWirtschaftNaturwissenschaften/TechnikSportUnterhaltung
+Papst Franziskus vor seinem Tod: Das waren seine letzten Worte
+Berliner Zeitung
+Berliner Zeitung
+ · 1 Std.
+Papst Franziskus vor seinem Tod: Das waren seine letzten Worte
+Papst Franziskus hat sich nach Angaben vatikanischer Medien kurz vor seinem Tod dankbar darüber gezeigt, am Ostersonntag noch mal unter den Gläubigen auf dem Petersplatz gewesen zu sein. Zu seinen ...
+AfD erreicht in Umfrage höchsten jemals gemessenen Wert
+WELT
+WELT
+ · 1 Std.
+AfD erreicht in Umfrage höchsten jemals gemessenen Wert
+Es ist ein neuer Rekord: Die AfD kommt in einer neuen Umfrage auf nie dagewesene Zustimmungswerte. Das Wählerpotenzial der Partei liegt offenbar noch weit höher. Schwarz-Rot kommt abermals auf keine ...
+Kardinäle versammeln sich im Vatikan: Beisetzung des Papstes am Samstag 10 Uhr
+Euronews (Deutsch)
+Euronews (Deutsch)
+ · 4 Std.
+Kardinäle versammeln sich im Vatikan: Beisetzung des Papstes am Samstag 10 Uhr
+Die Kardinäle haben sich im Vatikan versammelt, um mit der Planung des Begräbnisses von Papst Franziskus zu beginnen, der am Montag im Alter von 88 Jahren gestorben ist. Die Beisetzung ist laut ...
+IWF kürzt Wachstumsprognosen - Trumps Handelskrieg wird für USA zum Bumerang
+Reuters
+Reuters
+ · 15 Min.
+IWF kürzt Wachstumsprognosen - Trumps Handelskrieg wird für USA zum Bumerang
+Berlin/Washington (Reuters) - Der von Präsident Donald Trump angezettelte Handelskrieg wird sich laut Internationalem Währungsfonds nicht für die USA auszahlen.Im Gegenteil: Der IWF korrigierte am ...
+Ukraine-Krieg: Kreml stellt Putins Äußerung zu direkten Gesprächen klar
+Berliner Zeitung
+Berliner Zeitung
+ · 3 Std.
+Ukraine-Krieg: Kreml stellt Putins Äußerung zu direkten Gesprächen klar
+Der Kreml hat erklärt, dass bislang keine direkten Gespräche zwischen dem russischen Präsidenten Wladimir Putin und dem ukrainischen Präsidenten Wolodymyr Selenskyj geplant seien. Am Montag hatte ...
+Goldpreis erreicht Rekordhoch von 3.500 Dollar nach Trumps Angriff auf die FED
+Euronews (Deutsch)
+Euronews (Deutsch)
+ · 1 Std.
+Goldpreis erreicht Rekordhoch von 3.500 Dollar nach Trumps Angriff auf die FED
+Eine Feinunze Gold kostet erstmals 3.500 Dollar – so teuer war die Anlage noch nie. Ein Grund dafür ist der letzte Angriff von US-Präsident Donald Trump auf den Vorsitzenden der Federal Reserve Bank: ...
+
+Alle anzeigen
+Weitere News anzeigen
+ 
+N-TV
+https://www.n-tv.de
+Nachrichten, aktuelle Schlagzeilen und Videos - n-tv.de
+Nachrichten seriös, schnell und kompetent. Artikel und Videos aus Politik, Wirtschaft, Börse, Sport und aller Welt.
+heute 19:00 Uhr vom 21.04.2025 Papst Franziskus an Ostermontag gestorben
+20:12
+heute 19:00 Uhr vom 21.04.2025 Papst Franziskus an Ostermontag gestorben
+Videoquellwebsite
+YouTube
+ZDFheute Nachrichten
+98,4Tsd. Aufrufe
+Vor 18 Stunden
+Was müssen wir heute tun?
+„Was wir heute tun müssen, ist, eine Macht zu werden“, so Macron. „Wir sind ein Markt, wir sind ein Ort des Friedens, aber wir sind ein wenig amorph. Wir stellen uns nicht genug vor“, sagte er. „Europa muss den Geschmack des Risikos, des Ehrgeizes und der Macht wiederentdecken.
+msn.com
+Schlagzeilen und Videos des Tages chronologisch - n-tv.de
+Fox News überträgt russische und ukrainische Gottesdienste live im US-Fernsehen. Dabei wird Kiew in Russland verortet. Das ukrainische Außenministerium fordert eine Entschuldigung. Präsident ...
+N-TV · https://www.n-tv.de/home/Das_Neueste
+Feedback
+ 
+Tagesschau
+https://www.tagesschau.de
+tagesschau.de - die erste Adresse für Nachrichten und Information
+Vor einem Tag · tagesschau.de - die erste Adresse für Nachrichten und Information: An 365 Tagen im Jahr, rund um die Uhr aktualisiert - die wichtigsten News des Tages
+
+Tagesschau 20 UhrTagesschau in 100 SekundenLetzte SendungInlandAuslandVideos & Audios
+ 
+ZDF
+https://www.zdf.de › nachrichten
+Newsticker: Aktuelle Schlagzeilen & Eilmeldungen - ZDFheute
+Lesen Sie die neuesten Nachrichten aus Politik, Wirtschaft, Sport und Kultur auf ZDFheute. Erfahren Sie mehr über Entlassungen im US-Sicherheitsrat, Elton Johns Stiftung in Russland, …
+
+Videos von nachrichten aktuell heute
+bing.com › videos
+BBC-Bericht: Terrororganisation Hamas offenbar zu mehr Zugeständnissen bereit
+5:18
+BBC-Bericht: Terrororganisation Hamas offenbar zu mehr Zugeständnissen bereit
+2,8Tsd. AufrufeVor 3 Stunden
+YouTubetagesschau
+Vatikan: Papst Franziskus ist tot (LIVE-Sondersendung)
+7:22:55
+Vatikan: Papst Franziskus ist tot (LIVE-Sondersendung)
+312,4Tsd. AufrufeVor 21 Stunden
+YouTubetagesschau
+Papst Franziskus ist gestorben | heute spezial
+59:28
+Papst Franziskus ist gestorben | heute spezial
+31,4Tsd. AufrufeVor einem Tag
+YouTubeZDFheute Nachrichten
+7:22
+Kardinäle im Vatikan plant Beisetzung von Papst Franziskus
+10,9Tsd. AufrufeVor 3 Stunden
+YouTubetagesschau
+Tagesschau
+https://www.tagesschau.de › inland
+Aktuelle Nachrichten aus Deutschland | tagesschau.de
+Überblick zu Hintergründen, Analysen und Interviews bei tagesschau.de - die erste Adresse für Nachrichten und umfassende Berichte zu aktuellen Themen.
+
+ZDF
+https://www.zdf.de › nachrichten
+Aktuelle Nachrichten und Videos auf einen Blick - ZDFheute
+ZDFheute bietet Ihnen einen Überblick über die wichtigsten Themen des Tages aus Politik, Wirtschaft, Sport und Kultur. Lesen Sie, was Trump, Musk, Netanjahu, Rutte und andere bewegt.
+
+Focus
+https://www.focus.de › eilmeldungen
+Nachrichten Eilmeldungen von Heute - FOCUS online
+Vor 5 Tagen · Aktuelle Nachrichten aus Politik, Sport, Wirtschaft und Kultur. Lesen Sie hier die wichtigsten Meldungen des Tages, von Wetterwechsel in Deutschland bis Zollhammer von …
+
+Ähnliche Fragen
+Was ist eine Nachrichtenagentur?
+Nachrichtenagenturen versorgen Medien schnell mit Informationen. Die Agenturen berichten täglich intensiv über die US-Politik und Donald Trump. Insbesondere Medien, die nicht in Washington vertreten sind, verlassen sich auf die Berichte der Agenturen. Auch der SPIEGEL bezieht Nachrichten von Reuters und AP.
+Donald Trump: Weißes Haus schränkt Zugang großer Nachrichtenagen…
+msn.com
+Wer hat die Nachrichten von Donald Trump verfasst?
+Niemand weiß, wer die Nachrichten von Donald Trump wirklich verfasst. Am Freitag schien es jedenfalls so, als wäre der Präsident der Vereinigten Staaten von Amerika endgültig dem Wahnsinn verfallen.
+Trump steckt die Welt in Brand: Hat der Wahnsinn gar Methode?
+msn.com
+Was müssen wir heute tun?
+„Was wir heute tun müssen, ist, eine Macht zu werden“, so Macron. „Wir sind ein Markt, wir sind ein Ort des Friedens, aber wir sind ein wenig amorph. Wir stellen uns nicht genug vor“, sagte er. „Europa muss den Geschmack des Risikos, des Ehrgeizes und der Macht wiederentdecken.
+Nach Trumps Zolldrohung: Macron warnt vor „Vasallisierung“ Europas
+msn.com
+Was ist die aktuelle und neueste Android-Version?
+Hier seht ihr die Geschichte und Evolution aller Android-Versionen: Was ist die aktuelle und neuste Android-Version? Android 15 ist seit Oktober 2024 offiziell verfügbar und derzeit die neueste Android-Version. Sofern es die neue Betriebssystem-Version für euer Gerät gibt, könnt ihr das Android-Update so installieren.
+Welche Android-Version ist aktuell & installiert?
+msn.com
+Wer ist die neue Sprecherin der Tagesschau?
+Romy Hiller wird neue Sprecherin der 20-Uhr-„Tagesschau“ im Ersten. Erstmals soll Hiller am 14. Juni in der Hauptausgabe der traditionellen Nachrichtensendung der ARD zu sehen sein, wie der NDR am Dienstag in Hamburg mitteilte.
+Romy Hiller wird ab Juni neue „Tagesschau“-Sprecherin: Sie kommt au…
+msn.com
+Was passiert in Bad Nauheim?
+Nach den tödlichen Schüssen auf zwei Männer im hessischen Bad Nauheim in Deutschland sind zwei Tatverdächtige festgenommen worden. Gegen die beiden Männer im Alter von 31 und 36 Jahren wurde Haftbefehl erlassen, wie die Polizei mitteilte.
+Zwei Festnahmen nach Bluttat im deutschen Bundesland Hessen
+msn.com
+Feedback
+N-TV
+https://www.n-tv.de › home › Das_Neueste
+Schlagzeilen und Videos des Tages chronologisch - n …
+Fox News überträgt russische und ukrainische Gottesdienste live im US-Fernsehen. Dabei wird Kiew in Russland verortet. Das ukrainische Außenministerium fordert eine Entschuldigung. Präsident ...
+
+Welt
+https://www.welt.de
+WELT - Aktuelle Nachrichten, News, Hintergründe
+Vor einem Tag · WELT bietet Ihnen einen Überblick über die wichtigsten Themen des Tages aus Politik, Wirtschaft, Sport, Kultur und mehr. Lesen Sie Analysen, Kommentare und Hintergründe zu nationalen und internationalen Ereignissen.
+
+Google News
+https://news.google.com › topics
+Google News - Schlagzeilen
+Weltreservewährung: Ruiniert Trump den Dollar und damit die USA? Mit Google News kannst du zum Thema Schlagzeilen vollständige Artikel lesen, Videos ansehen und in Tausenden von …
+
+Focus
+https://www.focus.de › schlagzeilen
+Schlagzeilen - Meldungen des Tages | FOCUS online
+Vor einem Tag · Hier finden Sie die wichtigsten Schlagzeilen und News von heute auf einen Blick. Von Andy Borg über Gerd Poppe bis zur Ukraine-Krise: Lesen Sie, was Sie heute wissen müssen.
+
+Ähnliche Suchvorgänge für nachrichten aktuell heute
+michael schumacher tot heute gestor
+michael schumacher tot heute gestorben
+wer ist gestorben heute
+aktuelle schlagzeilen heute
+neueste nachrichten 20 minuten heute
+nachrichtenüberblick heute
+nachrichten jetzt gerade
+100 sekunden nachrichten heute
+Einige Ergebnisse wurden entfernt.
+1
+2
+3
+4
+Ähnliche Suchen
+michael schumacher tot heute gestor
+michael schumacher tot heute gestorben
+wer ist gestorben heute
+aktuelle schlagzeilen heute
+neueste nachrichten 20 minuten heute
+nachrichtenüberblick heute
+nachrichten jetzt gerade
+100 sekunden nachrichten heute
+ 
+© 2025 Microsoft
+Cookie-Einstellungen verwalten
+Datenschutzbestimmungen und CookiesRechtliche HinweiseWerben auf BingÜber unsere WerbungHilfeFeedbackImpressumDatenschutz in Europa
+Dienstag, 22. April 2025 15:18 Uhr Frankfurt | 14:18 Uhr London | 09:18 Uhr New York | 22:18 Uhr Tokio
+N-TV
+Ressorts
+Sport
+Börse
+Wetter
+Video
+Audio
+TV Programm
+Live-TV
+Börsenkurse
+DAX
+21.091
+-0,5%
+MDAX
+27.083
+-0,2%
+ESX
+4.916
+-0,4%
+DAX Ind
+21.081
+-0,6%
+DOW Ind
+38.584
+-1,5%
+ESX Ind
+4.915
+-0,6%
+EUR
+1,1465
+-0,4%
+Öl
+63,27
+1,4%
+Gold
+3.440
+0,5%
+WETTER
+Berlin
+Insgesamt gibt es mehr Wolken als Sonnenschein aber nur vereinzelt ist mit Niederschlag zu rechnen.
+17
+°
+Mi.
+19° / 8°
+Do.
+17° / 8°
+Das Neueste
+
+12345678910111213141516171819202122232425262728
+Papst ist gestorben - Liveticker
++++ 15:00 Das waren die letzten Stunden im Leben des Papstes +++
+Ukraine-Krieg im Liveticker
++++ 15:08 Militärverwaltung meldet russischen Drohnenangriff auf Krankenhaus in Cherson +++
+
+
+
+
+
+
+
+
+516321494.jpg
+Der Tag
+14:37 Ex-Vizepräsident vergleicht Trump-Regierung mit Nazi-Deutschland
+Kleenex Happies, Baby-Pflege-Tücher
+Der Börsen-Tag
+15:05 Prognosesenkung drückt Aktie von "Kleenex"-Anbieter
+Schluss. Aus. Vorbei. Thomas Müller nach seinem letzten Champions-League-Spiel für den FC Bayern.
+Der Sport-Tag
+14:54 Nächster Klub für Thomas Müller? Transferguru di Marzio nennt einen Namen
+NACHRICHTEN
+d96b80200e504e607e7a6e6dc1dfa833.jpg
+Wirtschaft
+Trump-Zölle hinterlassen Spuren
+IWF senkt Wachstumsprognose für Deutschland
+Die Weltwirtschaft wird auf eine "harte Probe" gestellt, sind sich Vertreter vom Internationale Währungsfonds sicher. Die Trump-Zölle sind nicht nur global gesehen eine wirtschaftliche Entwicklungsbremse, sondern treffen auch Deutschland.
+
+515532017.jpg
+Politik
+RTL/ntv Trendbarometer
+AfD führt mit neuem Höchstwert erstmals Umfrage an
+Der Aufwärtstrend der AfD in den Umfragen seit der Bundestagswahl hält an. Im neuen RTL/ntv Trendbarometer kann die Partei noch einmal zulegen und so an CDU und CSU vorbeiziehen. In einer ergänzenden Umfrage äußern sich AfD-Wähler zu ihren Motiven.
+
+VideoAfD überholt Union und ist erstmals stärkste Kraft
+519358598.jpg
+Politik
+RTL/ntv Trendbarometer
+Merz verliert deutlich an Ansehen bei Wählern
+Nicht einmal die Hälfte der Deutschen erwartet sich vom kommenden Bundeskanzler Friedrich Merz eine bessere Regierungsführung als unter dessen unbeliebtem Vorgänger. Wie das RTL/ntv Trendbarometer zeigt, sind die persönlichen Werte des künftigen Regierungschefs nach der Wahl deutlich gesunken.
+
+VideoMerz richtet sich mit Videobotschaft an alle Bürger
+520698089.jpg
+Panorama
+Pontifex in Rom aufgebahrt
+Vatikan veröffentlicht Foto von totem Papst Franziskus
+Der Leichnam von Papst Franziskus liegt aufgebahrt in einer Kapelle im Vatikan. Im Laufe der Woche soll der Sarg überführt werden. Das Datum für die Beerdigung des Kirchenoberhauptes steht bereits fest. Zu der Feier werden prominente Gäste erwartet.
+
+VideoVatikan zeigt erstmals toten Papst Franziskus im Sarg
+520702007.jpg
+Panorama
+Der Weg zum neuen Papst
+Geheimrunde der Kardinäle: Wie das Konklave abläuft
+Wer wird der nächste Papst? Das entscheiden 135 wahlberechtigte Kardinäle. Das sogenannte Konklave ist streng geheim und folgt einem festgeschriebenen Skript. Bis weißer Rauch aus der Sixtinischen Kapelle aufsteigt, kann es unter Umständen dauern.
+
+VideoWas nach dem Tod von Papst Franziskus passiert
+Kardinalomat.jpg
+Panorama
+Zehn Fragen zum Favoriten
+Wer wird der nächste Papst? Kardinal-O-Mat hilft bei Überblick
+In den kommenden Wochen beginnt die Suche nach einem neuen Oberhaupt der katholischen Kirche. Insgesamt 135 Kardinäle stehen zur Wahl für das Papstamt. Doch wer steht wofür? Eine Website liefert Hilfe.
+
+papst.JPG
+01:28 min
+Panorama
+Lange Liste dank Franziskus
+Diese Kardinäle werden für Papst-Nachfolge gehandelt
+Bald schaut die gesamte Welt wieder auf einen Schornstein im Vatikan, der mit weißem Rauch signalisieren wird, dass ein neuer Papst gefunden ist. Die Wahl könnte jedoch kompliziert werden, wie Theologe Joachim Frank erklärt. Dafür hat auch eine Praxis des verstorbenen Franziskus gesorgt.
+
+444477448.jpg
+Wirtschaft
+3521 Prozent auf Solarzellen
+USA weiten Handelskrieg gegen China aus
+In den USA geht die Sorge um, dass China die Strafzölle mit seinem globalen Fabriknetzwerk umgehen kann. Die Trump-Regierung versucht, dagegen vorzugehen und belegt Solarzellen aus vier asiatischen Ländern mit horrenden zusätzlichen Abgaben.
+
+VideoWas Trump trotz "überschaubarem Intellekt" verstanden hat
+490579466.jpg
+Wirtschaft
+Tiefgreifender Strategiewechsel
+VW präsentiert komplett in China entwickelte E-Autos
+Im Volkswagen-Konzern verschieben sich die Machtverhältnisse Richtung China. Dort entstehen nun ohne externe Partner Elektromodelle. Der Autobauer steht auf dem wichtigsten Einzelmarkt unter Zugzwang.
+
+imago81620012.jpg
+01:37 min
+Wirtschaft
+Von ihm selbst ins Amt geholt
+Warum Trump Fed-Chef Powell jetzt absägen will
+In seiner ersten Amtszeit macht Donald Trump 2018 Jerome Powell zum Chef der US-Notenbank Fed. Heute aber sägt er öffentlich und mit scharfen Worten am Stuhl des Notenbankers. Warum aber hat es der US-Präsident auf Powell abgesehen?
+
+520634417.jpg
+Politik
+Video von der Trump-Regierung
+"Diskriminierender" US-Spot brüskiert Mexiko
+US-Präsident Trump verfolgt eine rigorose Einwanderungspolitik, mit einer teuren Kampagne soll das auch im Ausland verbreitet werden. In Mexiko sorgt ein Werbespot der Trump-Regierung für Unmut.
+
+513093245.jpg
+Politik
+Eintritt in die SPD?
+Wissing lehnt Klingbeil-Offerte "derzeit" ab
+Mit dem Ampel-Aus verlässt Volker Wissing die FDP. Mit der Regierung ist er nur noch geschäftsführend im Amt, der Verkehrsminister hat auch noch kein neues Parteibuch. Trotz eines konkreten Angebots soll es dabei auch bleiben.
+
+FotoJet (2).jpg
+Unterhaltung
+Wirbel bei "Let's Dance"
+Thomalla muss aufgeben - Neubauer kehrt zurück
+Seit Wochen tanzt Simone Thomalla bei "Let's Dance" schon mit Schmerzen. Nun geht es nicht mehr. Die Schauspielerin gibt auf. Was des einen Leid, ist des anderen Freud. Wegen des Ausfalls darf ihre Kollegin Christine Neubauer auf das Tanzparkett zurückkehren.
+
+imago1058443418.jpg
+Fußball
+Was ist los mit Moukoko?
+Der bodenlose Absturz des ehemaligen BVB-Wunderkinds
+Mit 15 war er die Zukunft des deutschen Fußballs, mit 20 ist er bereits Vergangenheit. Die Entwicklung des Dortmunders Youssoufa Moukoko stockt in Nizza gewaltig. Nach der Rückkehr zum BVB ist seine Zukunft dort mehr als ungewiss.
+
+520718912.jpg
+Unterhaltung
+On-Off-Beziehung jetzt off
+Christian und Bettina Wulff sind "endgültig" getrennt
+Und regelmäßig grüßt das Murmeltier: Die Liebe zwischen Christian und Bettina Wulff ist mal wieder erloschen. Und das, nachdem sie sich doch schon drei Mal das Jawort gegeben haben. Jetzt sei die Trennung aber "endgültig", lässt der Ex-Bundespräsident mitteilen.
+
+Spezial
+imago0052184833h.jpg
+Dynamische Stromtarife
+Grüner Strommix
+Dynamische Stromtarife: Tipps zum Vertragsabschluss
+Stromversorger in Deutschland sind seit dem 1. Januar dazu verpflichtet, dynamische Stromtarife anzubieten. Für wen sie sich lohnen können - und worauf es beim Vertragsabschluss ankommt.
+
+88deea1d56cde500912116b8e2e968a3.jpg
+Wirtschaft
+Prognose erneut gesenkt
+Habeck setzt Wachstumserwartungen auf null
+Die deutsche Wirtschaft schwächelt und die Hoffnung auf Besserung kommt fürs Erste vollständig zum Erliegen: Das Wirtschaftsministerium setzte zuletzt die Konjunkturprognosen immer weiter runter. Nun stehen die Zeichen vollkommen auf Stagnation.
+
+520703990.jpg
+Panorama
+"Letzte irdische Reise"
+Das Testament von Papst Franziskus im Wortlaut
+Nach dem Tod von Papst Franziskus hat der Vatikan das Testament veröffentlicht. Schon vor drei Jahren habe er gespürt, dass sich der Sonnenuntergang seines irdischen Lebens nähere. Deshalb hat er 2022 schon verfügt, wo und wie er begraben werden soll.
+
+VideoFranziskus "wollte lieber eine verbeulte Kirche"
+520633724.jpg
+Panorama
+Flammen lodern aus Triebwerk
+282 Passagiere aus brennendem Airbus evakuiert
+Heikle Situation am Flughafen in Orlando: Kurz nach dem Verlassen des Gates fängt das Triebwerk einer Delta-Maschine Feuer. Mehr als 280 Fluggäste müssen evakuiert werden. Verletzt wird offenbar niemand - doch warum das Feuer ausbrach, ist noch unklar.
+
+VideoAirbus fängt vor Start Feuer - Probleme bei Evakuierung
+520613330.jpg
+Fußball
+Anpeitscher bei Aufstiegsparty
+Feierbiest Farke will "der Erste sein, der auf dem Tisch steht"
+Leeds United steigt in die Premier League auf. Damit schafft Trainer Daniel Farke Historisches - und wird richtig emotional. Der Deutsche will nun auch bei der Party vorangehen.
+
+516498797.jpg
+Panorama
+RAF-Terroristin vor Gericht
+Umgebaute Reithalle für Klette-Prozess kostet Millionen
+Für den Gerichtsprozess gegen das Ex-RAF-Mitglied Daniela Klette braucht es einen Hochsicherheitssaal - doch den hat die niedersächsische Kleinstadt Verden bisher nicht. Eine Reithalle soll daher umgebaut werden. Die dafür benötigten Millionen trägt offenbar der Vermieter.
+
+494964728.jpg
+Wirtschaft
+12.000 neue Jobs
+Roche kündigt Milliardeninvestition in den USA an
+Die drohenden Trump-Zölle erwähnen die Schweizer nicht und doch sind sie die Ursache: Der Pharmakonzern Roche will kräftig in den USA investieren. Es sollen neue Standorte entstehen und viele Menschen eingestellt werden.
+
+91391891.jpg
+60 Bilder
+Politik
+Ypern 1915
+Der erste Giftgas-Angriff der Geschichte
+In der Hoffnung, den Stellungskrieg im Westen zu überwinden, setzen die Deutschen am 22. April 1915 erstmals Giftgas als Waffe ein. Es ist der Beginn der chemischen Kriegsführung, die im Ersten Weltkrieg zehntausenden Soldaten den Tod bringt.
+
+ef90fcab15085bbd1013d6560219fc4f.jpg
+Panorama
+Prozessbeginn in Heidelberg
+Frau soll Tochter absichtlich krank gemacht haben
+Schlimmer Verdacht gegen eine 26-Jährige aus dem Rhein-Neckar-Kreis: Sie soll ihrer kleinen Tochter wochenlang Keime gespritzt haben. Die Dreijährige wird krank und muss zahlreiche Behandlungen über sich ergehen lassen. In Heidelberg muss sich die Frau jetzt vor Gericht verantworten.
+
+Ein E-Auto der Marke BYD biegt um eine Kurve: Auf deutschen Straßen sieht man die Fahrzeuge des chinesischen Herstellers eher selten. 
+Wirtschaft
+"Marktschwemme" bleibt aus
+So wenige E-Autos aus China sind in Deutschland unterwegs
+Autoherstellern aus China wird oft nachgesagt, dass sie der deutschen Industrie gefährlich werden könnten. Auf den Straßen sieht man die Stromer von BYD, GWM oder Lynk & Co bislang aber äußerst selten, zeigt die Statistik. Wie passt das zusammen? Von Laura Stresing
+
+VideoPreis, Sicherheit, Look: Was taugen chinesische E-Autos?
+
+Ratgeber
+Bad oder Küche verschönern
+Neue Fliesen: Wie man die Kosten richtig kalkuliert
+Bad oder Küche sollen neue Fliesen bekommen? Dann ist es gut, zu wissen, wie teuer es wird. Tipps, worauf man bei der Berechnung achten sollte.
+
+95995640.jpg
+Wissen
+Wie beim Essen und beim Sex
+Warum Lieblingsmusik eine Gänsehaut auslöst
+Musik kann gute Laune machen, aber auch zu Tränen oder Gänsehaut führen. Wie solche Reaktionen zustande kommen und was dabei genau im Gehirn passiert, kann ein Forschungsteam nun erklären.
+
+a42b1707d12a22d40c56c7bbfc149a1c.jpg
+Panorama
+Wilfried W. bleibt gefährlich
+BGH weist Revision des "Horrorhaus"-Täters ab
+In Höxter quält Wilfried W. zwei Frauen zu Tode. Nach einer Fehleinschätzung verbüßt er seine Haftstrafe inzwischen in einem normalen Gefängnis. Ein Gericht ordnet zudem Sicherungsverwahrung an. Mit einer Revision gegen die Entscheidung scheitert W. nun.
+
+epi_226717815_ACTIONPRESS FOTO PREMIUM ONLINE_action action 47314492.jpg__PREMIUM-EXCLUSIVE_ .jpg
+Unterhaltung
+Surfen statt Politik
+Ivanka Trump genießt die perfekte Welle
+Ihr Vater produziert tagtäglich eine Schlagzeile nach der anderen, um Ivanka Trump ist es dagegen eher still geworden. Schließlich hält sie sich inzwischen aus der Politik heraus - und genießt stattdessen einen Surf-Urlaub in Costa Rica.
+
+epi_226732723_ACTIONPRESS FOTO PREMIUM ONLINE_action action 47317779.jpg__PREMIUM-EXCLUSIVE_ .jpg
+Unterhaltung
+"Twilight"-Bella heiratet Frau
+Kristen Stewart sagt Ja zu Dylan Meyer
+Nicht nur in den "Twilight"-Filmen liebt Kristen Stewart Co-Star Robert Pattinson. Auch privat sind die beiden mehrere Jahre ein Paar. Doch zuletzt geht Kristen Stewart zumeist Beziehungen mit Frauen ein. Ihre Verlobte Dylan Meyer hat sie nun auch geheiratet.
+
+519770876.jpg
+Panorama
+Junge schildert kreativen Ausweg
+Schulphobie: Wenn das Klassenzimmer zum Angstraum wird
+Wenn das eigene Kind Monate oder Jahre nicht zur Schule geht, kann das eine schwere Belastung sein. Tanja Überall hat das mit ihrem Sohn erlebt. Die Lösung war unkonventionell.
+
+465192826.jpg
+Panorama
+Gruppe von Flut überrascht
+25 Wattwanderer aus Seenot vor Amrum gerettet
+So hatte sich eine Gruppe Wattinteressierter ihre Wanderung vor der Insel wohl nicht vorgestellt: Mit einem erfahrenen Führer starten sie ihre Tour bei Ebbe - bis ihnen das Wasser den Weg abschneidet. Der Gruppenleiter muss einen Notruf absetzen.
+
+imago807665250.jpg
+Unterhaltung
+"The Last of Us"-Schocker
+Pedro Pascal ist noch "in aktiver Verdrängungsphase"
+Kenner des "The Last Of Us"-Videospiels wussten, was passieren wird - für viele Fans der Serie dürfte die aktuelle Folge aber ein Schock gewesen sein. Hauptdarsteller Pedro Pascal darf nun endlich darüber sprechen, was passiert - möchte aber am liebsten alles verdrängen.
+
+imago123565146.jpg
+Wissen
+Die "Urform des Feierns"?
+Schimpansen teilen alkoholisierte Früchte mit anderen
+Forschenden ist es erstmals gelungen, wilde Schimpansen beim gemeinsamen Konsum alkoholhaltiger Früchte zu beobachten. Werden diese geteilt, könnte das auch soziale Bindungen stärken.
+
+VideoRätsel gelöst: Schimpansen essen Pflanzen als Medizin
+Kolumne
+imago62782062.jpg
+Panorama
+Eine für alle
+Lobt den Tag nicht vor dem Abend, ihr Hasen
+Der Kolumnistin begegnet eigentlich ständig etwas Göttliches, einfach auch deswegen, weil sie es sehen will. Dafür muss sie weder besonders fromm noch besonders bigott sein. Vor allem muss sie sich dafür weder ins All schießen lassen, noch betend auf dem Boden winden. Sie rät, zu Ostern einfach mal die Augen aufzuhalten. Eine Kolumne von Sabine Oelmann
+
+Videos
+Trend2204.JPG
+12:17 min
+Politik
+22.04.2025 12:28
+RTL/ntv-Trendbarometer
+AfD überholt Union und ist erstmals stärkste Kraft
+viersen.JPG
+01:55 min
+Panorama
+22.04.2025 14:31
+Knöllchen-Frust wegen Tempolimit
+Zu hoch aufgehängt? Stadt in NRW zofft um Straßenschild
+evelyn.JPG
+01:19 min
+Unterhaltung
+22.04.2025 15:09
+"Regt euch über andere Dinge auf"
+Ohne Bikini-Top: Evelyn Burdecki verteidigt Urlaubsvideo
+LKWBrand.JPG
+01:00 min
+Panorama
+22.04.2025 13:21
+Immer wieder Explosionen
+Lkw brennt - ganze Straße verschwindet in Wand aus Feuer
+PapstimSarg.JPG
+02:06 min
+Panorama
+22.04.2025 10:39
+Aufbahrungs-Wunsch erfüllt
+Vatikan zeigt erstmals toten Papst Franziskus im Sarg
+DeltaFeuer.JPG
+01:21 min
+Panorama
+22.04.2025 13:52
+Fast 300 Menschen in Delta-Flieger
+Airbus fängt vor Start Feuer - Probleme bei Evakuierung
+HaiangriffKinder.jpg
+00:57 min
+Panorama
+22.04.2025 12:58
+Mann vor Hedara seither vermisst
+Neben Ort von Hai-Angriff schwimmen Haie zwischen Kindern
+MeyerGoldpreis.JPG
+02:36 min
+Wirtschaft
+22.04.2025 11:40
+Neues Allzeit-Hoch wegen Trump
+Goldpreis-Prognosen "kann man alle in die Tonne werfen"
+Kettenkarussell.JPG
+00:53 min
+Panorama
+22.04.2025 09:34
+Senkt sich bei zu hohem Tempo
+Kettenkarussell-Gondeln schlagen gegen Stangen
+imago1047846704.jpg
+01:01 min
+Sport
+22.04.2025 11:22
+Meistertrainer bald zurück bei Real?
+Rolfes zu Alonso: "Haben ein Gentleman's Agreement"
+fs2.JPG
+08:16 min
+Frühstart
+22.04.2025 10:21
+Audretsch im "ntv Frühstart"
+"Spahn arbeitet an Öffnung der CDU in Richtung AfD"
+papstr.JPG
+01:30 min
+Sport
+22.04.2025 11:25
+Franziskus "musste immer ins Tor"
+Über diesen Papst sangen sogar Fußball-Fans im Stadion
+PutinSelenskyjsVorschlag.JPG
+01:29 min
+Politik
+22.04.2025 09:56
+Eigene Feuerpause wohl gebrochen
+Putin will über Selenskyjs Vorschlag "nachdenken"
+520614266.jpg
+01:22 min
+Wirtschaft
+22.04.2025 10:52
+Vance zu Besuch in Neu-Delhi
+Macht Indien China den Rang als Produktionsland streitig?
+Unbenannt.jpg
+03:55 min
+Ratgeber
+22.04.2025 07:16
+Profikoch macht den Praxistest
+Welches Koch-Gadget erleichtert Küchenarbeit wirklich?
+tf.JPG
+08:37 min
+Frühstart
+22.04.2025 09:50
+Thorsten Frei im "ntv Frühstart"
+Politisch aktive Kirchen "müssen Kritik ertragen können"
+experte-papst.jpg
+01:44 min
+Panorama
+21.04.2025 15:25
+Vatikan-Experte zu 266. Papst
+"Franziskus hat Sex-Besessenheit der Kirche weggewischt"
+vatikan-mitteilung.JPG
+01:58 min
+Panorama
+21.04.2025 13:27
+Beisetzung nicht im Petersdom
+Hier verkündet der Vatikan den Tod von Papst Franziskus
+bf.JPG
+14:36 min
+Panorama
+21.04.2025 15:42
+Bischof Bätzing würdigt Papst
+Franziskus "wollte lieber eine verbeulte Kirche"
+massenhochzeit.JPG
+01:39 min
+Panorama
+21.04.2025 15:01
+Auch polygame Ehen erlaubt
+Paare feiern bunte Massenhochzeit in Pfingstkirche
+Newsletter
+Ich möchte gerne Nachrichten und redaktionelle Artikel von der ntv Nachrichtenfernsehen GmbH per E-Mail erhalten.
+
+E-Mail-Adresse
+Abonnieren
+Videos meistgesehen
+papst.jpg
+01:20 min
+Panorama
+20.04.2025 14:46
+Sein letzter Auftritt vor Gläubigen
+Papst Franziskus spricht schwer gezeichnet wenige Worte
+briten.jpg
+02:19 min
+Panorama
+21.04.2025 08:53
+Netz aus Schweigen und Vertuschung
+Sex-Skandal um junge Frauen erschüttert britische Armee
+dt.JPG
+01:43 min
+Politik
+21.04.2025 09:46
+Feuerpause in Ukraine unterbrochen
+Trump fordert Waffenruhe und pocht auf "goldene Regel"
+imago812393146.jpg
+05:24 min
+Wirtschaft
+17.04.2025 19:03
+Experte zu Handelskrieg mit China
+Was Trump trotz "überschaubarem Intellekt" verstanden hat
+hafen.JPG
+00:56 min
+Panorama
+20.04.2025 15:37
+Nach Angriff durch die USA
+Luftbilder zeigen komplette Zerstörung von Huthi-Hafen
+Bilderserien meistgesehen
+84068898.jpg
+102 Bilder
+Politik
+18.04.2025 09:38
+Die letzten Tage des NS-Regimes
+April 1945 - die Rote Armee stürmt Berlin
+38129785.jpg
+66 Bilder
+Panorama
+21.04.2025 10:15
+Jorge Mario Bergoglios Leben
+Franziskus - der Papst vom anderen Ende der Welt
+4a4f66e30adad427f8d0e052ff52d24d.jpg
+33 Bilder
+Panorama
+19.04.2025 10:07
+Jungfernfahrt Ende des Jahres
+Kreuzfahrtschiff "Disney Adventure" verlässt Schiffbauhalle
+Videos Meistgesehen
+deserteur.JPG
+05:31 min
+Auslandsreport
+18.04.2025 10:17
+Putin-Geheimdienst jagt Überläufer
+Russische Deserteure schildern grausame Kriegsverbrechen
+Meistgelesen
+520530557.jpg
+"Heute Morgen um 7.35 Uhr ... "
+Papst Franziskus ist tot
+461731102.jpg
+Airline verweigert Annahme
+China schickt neue Boeings in die USA zurück
+486725321.jpg
+Beisetzung eines Jüngers Christi
+Beerdigung von Franziskus wird mit vatikanischer Tradition brechen
+520698089.jpg
+Pontifex in Rom aufgebahrt
+Vatikan veröffentlicht Foto von totem Papst Franziskus
+500050973.jpg
+Als Papabili ins Konklave
+Wer wird der nächste Papst?
+518019395.jpg
+Pawlos aus Weilburg in Hessen
+Totes Kind aus Fluss ist "sehr wahrscheinlich" vermisster Sechsjähriger
+455032543.jpg
+Die Schlacht um Bautzen 1945
+Der letzte Wehrmacht-Sieg entpuppt sich als sinnloser Opfergang
+38108333.jpg
+Beisetzung und Konklave
+Wie geht es nach dem Tod des Papstes weiter?
+519762731.jpg
+Tesla verliert sieben Prozent
+Trump-Tirade drückt US-Börsen tief ins Minus
+c6a55eca1be327802d3bf64bbaf58213.jpg
+"Brauchen Leute, die kämpfen"
+Linker Aufstand erreicht Parteispitze der Demokraten
+Dokumentationen
+afd.JPG
+41:33 min
+Politik
+23.09.2024 21:02
+Undercover in der rechten Szene
+So nah sind sich AfD und Identitäre Bewegung wirklich
+Bilderserien
+38129785.jpg
+66 Bilder
+Jorge Mario Bergoglios Leben
+Franziskus - der Papst vom anderen Ende der Welt
+Geboren in Argentinien, will Jorge Mario Bergoglio eigentlich Arzt werden. Doch die religiöse Berufung ist stärker. Der Sohn italienischer Einwanderer wird Priester und schließlich Papst. Unter dem Namen Franziskus tritt er an, die Kirche zu verändern.
+
+91391891.jpg
+60 Bilder
+Ypern 1915
+Der erste Giftgas-Angriff der Geschichte
+Podcasts
+w8ud09mo.png
+Startup
+Deutsche Startups profitieren
+Die Zukunft ist alkoholfrei
+Alkoholfreies Bier ist auf dem Vormarsch. Speziell junge Menschen pflegen einen gesünderen Lifestyle. Zero Labs möchte profitieren: Das Münchner Startup braut Bier mit 0,0 Prozent Alkohol, zuckerfrei und in pinkfarbenem Design. Von Janna Linke
+
+Politik
+472839031.jpg
+Mehr Gesetze denn je
+Bürokratie in Deutschland reißt Rekord-Marke
+Verwaltungshürden hemmen die Wirtschaft und belasten Bürger, das ist längst bekannt. Die Politik hat sich den Bürokratie-Abbau daher auf die Fahnen geschrieben - und bisher offenbar das Gegenteil erreicht. Eine Studie beweist: Die Regulierung nimmt nicht ab, sondern deutlich zu.
+
+520603043.jpg
+Verteidigungsminister vor Aus?
+Weißes Haus dementiert Suche nach Hegseth-Nachfolger
+Ist es der erste hohe Amtsträger, den US-Präsident Trump feuern muss? Die Chataffäre um Hegseth weitet sich aus: Das Weiße Haus weist einen Bericht zurück, dass es schon nach einem neuen Verteidigungsminister sucht. Trotzdem gibt es Kritik aus den Reihen der Republikaner.
+
+VideoZeigt Trumps Regierung erste Risse?
+520684166.jpg
+Regiert seit 2007
+Bericht: Hamas bereit, Macht im Gazastreifen abzugeben
+Seit 2007 regiert die Hamas im Gazastreifen. Doch die Zeit könnte bald enden. Die Terrororganisation zeigt sich einem Bericht zufolge bereit, eine andere palästinensische Behörde dort zu akzeptieren. Derweil gibt es einen neuen Vorschlag für eine Waffenruhe.
+
+Video21-jähriger Deutsch-Israeli taucht auf Geisel-Video auf
+597e1d3901e462297568561472adf70c.jpg
+"Echte Reform" des Systems
+Klingbeil will mehr Menschen in die Rentenversicherung holen
+Der Koalitionsvertrag enthält beim Thema Rente einige Neuerungen, aber keine großen Veränderungen. Um eine Reform des Systems soll sich eine Kommission kümmern. SPD-Chef Klingbeil warnt vor den Folgen, falls das Vorhaben scheitert.
+
+Video"Gibt sehr entscheidenden Satz in Koalitionsvertrag"
+Weitere Schlagzeilen
+Persönliche Loyalität verlangt
+Israels Geheimdienstchef erhebt heikle Vorwürfe gegen Netanjahu
+Akademische Freiheit angegriffen
+Harvard-Universität verklagt US-Regierung
+Nach Ende der Feuerpause
+Putin will Waffenruhe für zivile Infrastruktur "prüfen"
+Trotz anhaltender Knappheit
+Trump gibt umstrittene Eier-Party vor dem Weißen Haus
+Nach neuem Chat-Skandal
+Hegseth und Weißes Haus schieben Schuld auf Pentagon
+Trend2204.JPG
+12:17 min
+Politik
+22.04.2025 12:28
+RTL/ntv-Trendbarometer
+AfD überholt Union und ist erstmals stärkste Kraft
+Wirtschaft
+517096391.jpg
+Angriff auf Fed-Chef
+Goldpreis schießt nach Trump-Attacke auf Rekordhoch
+Der aus dem Weißen Haus gewünschten Zinssenkung kommt Powell nicht nach - und US-Präsident Trump schäumt. Der Fed-Chef sei ein "großer Loser" und "Mr. Zu Spät". Die verbalen Attacken bleiben nicht ohne Folgen: Gold kostet erstmals in der Geschichte 3500 US-Dollar.
+
+VideoGold weiter im Höhenrausch
+de2cb9d43695fa468754c0c8fda4d7da.jpg
+Tech-Werte leiden besonders
+Kurseinbrüche nach Trumps Attacken auf den Fed-Chef
+US-Präsident Trump treibt die Entlassung des Fed-Chefs voran, weil die Notenbank nicht, wie gewünscht, die Zinsen senkt. An der Wall Street kommen die Drohungen nicht gut an.
+
+VideoFed-Chef stellt sich erneut gegen Trumps Zoll-Kurs
+519762731.jpg
+Tesla verliert sieben Prozent
+Trump-Tirade drückt US-Börsen tief ins Minus
+Nach dem Osterwochenende starten die Märkte in den USA mit deutlichen Verlusten. Grund dafür sind wohl auch die Angriffe von Donald Trump auf den Fed-Chef Powell. Besonders Tesla muss Einbußen verkraften.
+
+461731102.jpg
+Airline verweigert Annahme
+China schickt neue Boeings in die USA zurück
+China gehört zu den wichtigsten Kunden von Boeing. Doch wegen Donald Trump stehen die Maschinen des US-Flugzeugbauers in der Volksrepublik inzwischen auf dem Index. Mindestens zwei neue 737 Max kehren von der Endmontage bei Shanghai in die USA zurück.
+
+Weitere Schlagzeilen
+Mehr geheizt und höhere Preise
+Heizkosten für Gaskunden steigen deutlich
+Transformatoren als Nadelöhr
+"Wir sind in einem Superzyklus der Elektroenergie"
+Mit Konzern "nicht zufrieden"
+Union will Bahn-Chef Lutz loswerden
+Sehr geringe Zahlen
+Welche chinesischen Autos hierzulande unterwegs sind
+"Mehr Eier aufgetischt"
+Nicht Ostern treibt den Eierkonsum in die Höhe
+Teleboerse_teaser_neu.jpg
+10:30 min
+Telebörse
+22.04.2025 14:40
+Sendung in voller Länge
+Telebörse von 14:15 Uhr
+Panorama
+520703594.jpg
+Telefonat kurz vor dem Tod
+Verwandte trauern um den Papst
+Gebürtig kam Papst Franziskus aus Argentinien, er hatte aber auch noch Verwandte in Italien, der Heimat seines Vaters. Angehörige auf beiden Seiten des Atlantiks gedenken nun des verstorbenen Pontifex. Einer Cousine sprach er noch kurz vor seinem Tod Mut zu.
+
+VideoHier verkündet der Vatikan den Tod von Papst Franziskus
+519969956.jpg
+Droge verbreitet sich rasant
+BKA-Chef warnt vor "Kokain-Schwemme" in Deutschland
+Weil andere Märkte bereits gesättigt sind, konzentrieren sich Kokain-Händler auf Europa. Die Folgen machen sich offenbar bereits bemerkbar: BKA-Chef Münch spricht von einer regelrechten "Kokain-Schwemme". Kritische Worte findet er auch für den Effekt der Cannabis-Legalisierung.
+
+VideoTaucher finden in Ostsee Säcke mit 100 Kilo Kokain
+487133363.jpg
+Aber: Weniger Tote
+Statistik zählt mehr Flugunfälle in Deutschland
+In der Regel ist das Flugzeug das sicherste Verkehrsmittel. Dennoch kommt es auch im Luftverkehr in Deutschland hin und wieder zu schweren Störungen oder gar Unfällen, die teilweise tödlich enden. Große Maschinen sind davon nur selten betroffen, zeigt die Statistik.
+
+26575b3ef430175247f7abc05a145b61.jpg
+Fahrgeschäft hatte frischen TÜV
+Fünf Verletzte bei Unfall mit Kettenkarussell in Bayreuth
+Beim Frühlingsfest in Bayreuth werden am Abend mehrere Menschen auf einem Kettenkarussell verletzt, als die Gondeln beim Absenken nicht schnell genug entschleunigen. Als Ursache wird ein technischer Defekt vermutet - dabei war das Fahrgeschäft gerade erst beim TÜV.
+
+VideoKettenkarussell-Gondeln schlagen gegen Stangen
+Weitere Schlagzeilen
+Von Petrus bis Papst Franziskus
+Das sind die Namen aller Päpste
+Vatikan-Experte über Franziskus
+"Man kann schon sagen, er war ein Dickkopf"
+Dieb bei Tat gefilmt
+Trump-Ministerin wird Handtasche mit Tausenden Dollar geklaut
+Der Mann nach Benedikt
+Papst Franziskus blieb der Unvollendete
+Mann weiter vermisst
+Bericht über Hai-Angriff an Badestrand in Israel
+viersen.JPG
+01:55 min
+Panorama
+22.04.2025 14:31
+Knöllchen-Frust wegen Tempolimit
+Zu hoch aufgehängt? Stadt in NRW zofft um Straßenschild
+Sport
+2f8fdb770ed0c99fa9a18ca9bc954d45.jpg
+"Ich bin immer ein Teufelskerl"
+"Playoff-Monster" Leo Pföderl frisst sich zum Rekord
+Dank Torjäger Leo Pföderl haben die Eisbären Berlin im DEL-Finale wieder den Vorteil auf ihrer Seite. Mit einem Dreierpack gegen die Kölner Haie schreibt der mittlerweile 31 Jahre Angreifer Geschichte und nimmt einem alten Kumpel einen Rekord weg.
+
+464476342.jpg
+"Das gehört sich nicht"
+Bayer-Boss ist reichlich genervt vom FC Bayern
+Der FC Bayern ist wieder wer: Bayer Leverkusen gibt im Meister-Rennen auf. Geschäftsführer Fernando Carro hat darüber hinaus alle Hände voll zu tun. Ihm fliegt sein Teamgefüge um die Ohren. Dazu gibt er ein "Gentlemen's Agreement" mit Trainer Xabi Alonso preis.
+
+VideoRolfes zu Alonso: "Haben ein Gentleman's Agreement"
+Weitere Schlagzeilen
+Go Ahead Eagles sind Pokalsieger
+Fußballmärchen beendet 92-jährige Durstrecke
+Von Fanwut völlig überrascht
+Klub-Boss wusste nicht, wie wichtig Luka Doncic ist
+Erster Playoff-Sieg seit 2008
+Trainer huldigt "furchtlosem" Dennis Schröder nach Glanzspiel
+In die Premier League
+Ex-Gladbach-Coach Farke feiert mit Leeds den Aufstieg
+Tah weg - Wirtz, Xhaka, Alonso?
+Titellosem Bayer droht der große Zerfall
+Wissen
+520546535.jpg
+Erste deutsche Frau im All
+Rabea Rogge empfand Schwerelosigkeit als magisch
+Vier Tage lang war Rabea Rogge im Weltall. Was sie dabei erlebte und was besonders herausragend für sie war, erzählt die Wissenschaftlerin wenige Wochen nach ihrer Rückkehr.
+
+VideoErste deutsche Frau im All kehrt zur Erde zurück
+50662106.jpg
+Wassermangel bedroht Milliarden
+Himalaya-Schneedecke auf bedenklichem Tiefstand
+Forscher melden einen starken Rückgang der Niederschläge im Himalaya. Die Schneedecke sinkt auf ein 23-Jahres-Tief. Es ist bereits das dritte Jahr in Folge mit niedrigen Werten. Die Wassersicherheit von fast zwei Milliarden Menschen steht damit auf dem Spiel.
+
+VideoFolgen der Himalaya-Gletscherschmelze sind gravierend
+Weitere Schlagzeilen
+Wichtige anthropologische Frage
+Hat Sonnenschutz Homo sapiens gerettet?
+Behandlung per Knopfdruck
+KI als Psychotherapeut - revolutionär oder gefährlich?
+Wissenswertes zu Huhn und Ei
+Ein Huhn kann bis zu 300 Eier pro Jahr legen
+Überraschung für Himmelsforscher
+Hinweise auf Zwilling der Milchstraße entdeckt
+Eine eigentlich einfache Aufgabe
+Sprachtest lässt Rückschlüsse auf Restlebenszeit zu
+Ratgeber
+
+Zuschuss beantragen
+Hilfe bei hohen Wohnkosten: Für wen es Wohngeld gibt
+Wohnen sollte für jeden erschwinglich sein, doch viele kämpfen mit hohen Kosten. Wohngeld ist eine staatliche Unterstützung, die Menschen mit niedrigen Einkommen zugutekommt. Wer hat Anspruch?
+
+
+Familie und Job vereinbaren
+Kind und Karriere - geht das nun oder nicht?
+Viele Eltern möchten beruflichen Erfolg und Zeit für die Familie. Doch wie realistisch ist dieser Wunsch? Und was hilft dabei, ihn zu realisieren?
+
+Weitere Schlagzeilen
+Versuch ist es wert
+Teilzeitwunsch: Soll ich mich auf Vollzeitstellen bewerben?
+Vorsicht vor Fake-Angeboten
+Vier Dinge, an denen Sie seriöse Online-Shops erkennen
+Energie, Umwelt, Strom
+Stets startklar - Elektroauto mit Wallbox zu Hause laden
+Draußen unterwegs
+Wandersaison startet: Die besten Tipps für die nächste Tour
+Bodenpflege im Garten
+Der Mulch macht's: Was das ist und was er bringt
+Ostern.JPG
+01:24 min
+Ratgeber
+20.04.2025 03:38
+Bunte Eier, Jesus und eine Göttin
+Darum feiern wir Ostern - aber woher kommt der Hase?
+Unterhaltung
+14_Tatort_Im_Wahn.jpg
+"Tatort" aus Hannover
+Wie gut ermittelt die KI?
+In "Im Wahn" lässt der NDR Mensch gegen Maschine antreten und stellt ob aktueller Entwicklungen die Frage: Hat Künstliche Intelligenz etwas in der Polizeiarbeit verloren? Und wenn ja, wie viel? Von Julian Vetten
+
+F5FC2.jpg
+"Wer wird Millionär?"
+"Ökobumser" bringt Jauch auf die Palme
+Die Jugend rockt Tag zwei der großen 3-Millionen-Euro-Woche. Ein extra entspannter Student löst bei Jauch allerdings Aggressionen aus. Eine Brandrede zur Seenotrettung im Mittelmeer und Beckenbauer-Unwissen treiben den Moderator ebenfalls um. Von Nina Jerzy
+
+imago810321203.jpg
+Sorge um 87-Jährige
+Norwegische Königin Sonja im Krankenhaus
+Sonja von Norwegen liegt im Krankenhaus. Das norwegische Königshaus teilt mit, dass die 87-jährige Königin Ostermontag wegen akuter Atemnot aus dem Urlaub in eine Klinik geflogen werden musste.
+
+Weitere Schlagzeilen
+"Den Jackpot geknackt"
+George Clooney: Noch nie mit Amal gestritten
+Überraschung am Ostersonntag
+Liz Hurley präsentiert ihre neue Liebe
+Exklusivbehandlung auf Mallorca
+Bianca Censori soll in Luxus-Therapie sein - mit Kanye West
+Remake des Klassikers
+Sticht Kim Kardashian Taylor Swift bei "Bodyguard" aus?
+Der neue Dumbledore, aber ...
+John Lithgow weiß, was manch "Harry Potter"-Fan an ihm entsetzt
+Technik
+Test Apple Vision Pro (7 von 4).jpg
+Leichter, dünner, günstiger?
+Apple plant angeblich eine Vision "Air"
+Auch wenn der Erfolg der Vision Pro nicht allzu groß ist, soll Apple an dem Konzept festhalten und weitere Mixed-Reality-Headsets planen. Eines davon könnte die breite Masse begeistern, denn es soll deutlich leichter, dünner und auch günstiger als das aktuelle Gerät sein.
+
+iPhone 15 Pro Pro Max Test (6 von 5).jpg
+Gefährliche Sicherheitslücken
+Apple veröffentlicht Notfall-Update iOS 18.4.1
+Wer ein iPhone nutzt, sollte nicht zögern, das zur Verfügung stehende Update auf iOS 18.4.1 zu installieren. Die Aktualisierung schließt unter anderem zwei kritische Sicherheitslücken, die offenbar bereits für Angriffe ausgenutzt wurden. Auch iPads sind betroffen.
+
+Weitere Schlagzeilen
+Mit und ohne dynamischen Tarif
+Batteriespeicher für Balkonkraftwerke sind immer rentabler
+Jetzt auch in der EU
+Meta trainiert KI mit öffentlichen Nutzerbeiträgen
+Zu Hause in beiden Netzwerken
+Der Chipolo Pop kann nicht nur Apples Airtag ersetzen
+Zu Hause bereit für Notfälle
+Die Powerstation Jackery Explorer 2000 v2 ist ideal fürs Camping
+Flacher Rücken kann entzücken
+Das Google Pixel 9a geht in der 500-Euro-Klasse an die Spitze
+Auto
+Insteroid-03.jpg
+Die wollen nur spielen
+Fünf potente Elektro-Kleinwagen - mit Spaß und Showeffekt
+Keine spaßbefreiten Sparbüchsen: Weil Elektromobilität mehr Sexappeal braucht, rüsten viele Hersteller ihre Minis zur Muskelprotzen auf. Auch wenn es manchmal nur für die Show ist. Fünf Beispiele von Hyundai bis VW.
+
+BMW3er_1711_06.jpg
+Gebrauchtwagencheck
+BMW 3er - gute Seiten, schlechte Seiten
+Der 3er BMW der sechsten Generation ist auf den Gebrauchtwagenbörsen häufig anzutreffen. Kaufinteressenten sollten jedoch genau hinschauen.
+
+Weitere Schlagzeilen
+Aus dem Vollen geschöpft
+Fahrt mit Cadillac Brougham - klassischer amerikanischer Luxus
+Ein bisschen mehr Traumwagen
+Testfahrt mit Aston Martin Vantage - soundstarker V8-Sportler
+Design von Ex-Audi-Mann Egger
+Denza Z9GT - chinesische Kampfansage im Krabbengang
+Keine Serie, aber Ideengeber
+Renault Emblème - Öko auf die Spitze getrieben
+Visionen mit Straßenzulassung
+Fünf Showcars, die es zum Serienmodell brachten
+Videos Meistgesehen
+demo.JPG
+03:12 min
+"Wenn nicht, muss ich auswandern"
+Frust und Wut über US-Demokraten nehmen zu
+Regionales
+15:15
+Niedersachsen & Bremen Niedersachsen startet Meldeportal für Steuerdelikte
+15:14
+Baden-Württemberg Mann stirbt in Straßengraben
+15:07
+Sachsen Auftakt für neues Festival "Elblandia"
+15:05
+Bayern Mann greift 13-jährigen Radfahrer an
+15:04
+Bayern Betroffenheit nach Karussellunfall - Ursache noch unklar
+15:01
+Thüringen BSW fordert erneut Bürgerräte
+14:59
+Thüringen 500 Jahre Bauernkrieg: Geschichte kritisch hinterfragen
+14:58
+Nordrhein-Westfalen Polizei-Statistik weist weniger Gewaltdelikte an Schulen aus
+14:52
+Rheinland-Pfalz & Saarland Saarbrückens Coach Rüdiger Ziehl tritt zurück
+14:51
+Mecklenburg-Vorpommern Hunderttausende Euro Schaden bei Brand einer Biogasanlage
+14:42
+Berlin & Brandenburg Böller in Schlafzimmer geworfen
+14:40
+Rheinland-Pfalz & Saarland Millionen-Betrug an Post – Angeklagter schuldig
+14:39
+Hamburg & Schleswig-Holstein Mann läuft im toten Winkel vor Lkw und stirbt - Freispruch
+14:35
+Nordrhein-Westfalen Weltkriegsbombe gefunden: Stopp auf Bahnstrecken in Münster
+14:34
+Hamburg & Schleswig-Holstein Kunsthalle wird für 7,4 Millionen Euro energetisch saniert
+14:34
+Rheinland-Pfalz & Saarland Handwerk in Rheinhessen verhalten optimistisch
+14:23
+Berlin & Brandenburg Neue Dienstleistungen: Anwohnerparkausweis online verlängern
+14:22
+Bayern Hund soll Reh bei Gassirunde totgebissen haben
+14:13
+Mecklenburg-Vorpommern Tourismusverband MV zieht positive Osterbilanz
+14:10
+Berlin & Brandenburg Forscher sehen steigendes Potenzial der AfD in Kommunen
+14:09
+Rheinland-Pfalz & Saarland Wie Gläubige in Rheinland-Pfalz um den Papst trauern
+14:06
+Hessen Gebete und Totenmessen für Papst Franziskus in Hessen
+ntv Nachrichtenfernsehen
+Programm
+Mitschnitte
+Zuschauerredaktion
+Pressestelle
+Kontakt
+Hinweisgeber
+Jobs bei ntv.de
+Digital Signage
+ntv.de Dienste
+mobil & Apps
+Newsletter
+RSS-Feeds
+Social Networks
+Facebook
+X
+Kooperationspartner
+Gutscheine
+Produktvergleiche
+Autoleasing
+Unternehmen
+Immobilienbewertung
+Broker-Vergleich
+Website erstellen
+Hosting
+Newsletter
+Ich möchte gerne Nachrichten und redaktionelle Artikel von der n-tv Nachrichtenfernsehen GmbH per E-Mail erhalten.
+E-Mail Adresse eingeben
+Abonnieren
+Impressum  Datenschutzerklärung  Nutzungsbedingungen
+Facebook
+Twitter
+Instagram
+Mastodon
+Rss
+© ntv.de Alle Rechte vorbehalten
