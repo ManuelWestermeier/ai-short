@@ -4,12 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WordCompressor</title>
+    <style>
+      textarea {
+        width: 100%;
+        height: 40dvh;
+      }
+    </style>
   </head>
   <body>
     <p>Compress <input type="checkbox" checked /></p>
     <textarea oninput="onInput(event)" placeholder="input text..."></textarea>
     <br />
     <textarea placeholder="output text..." readonly></textarea>
+    <p>Improved: <span></span></p>
     <script src="index.js"></script>
     <script>
       const [tIn, tOut] = document.querySelectorAll("textarea");
@@ -19,6 +26,8 @@
         tOut.value = await (document.querySelector("input").checked
           ? compress(data)
           : decompress(data));
+        document.querySelector("span").innerText =
+          tIn.value.length - tOut.value.length;
       }
     </script>
   </body>
